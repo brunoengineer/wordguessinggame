@@ -1,9 +1,10 @@
+
 import PlayerList from '../components/PlayerList';
 import { useGame } from '../hooks/GameContext';
 import { useState } from 'react';
 
 export default function Lobby() {
-  const { players, setPlayers } = useGame();
+  const { players, setPlayers, masterIndex, setMaster } = useGame();
   const [newPlayer, setNewPlayer] = useState('');
 
   const handleAddPlayer = () => {
@@ -27,6 +28,18 @@ export default function Lobby() {
         <button className="bg-blue-600 text-white px-4 py-2 rounded shadow" onClick={handleAddPlayer}>
           Add Player
         </button>
+      </div>
+      <div className="mb-4">
+        <label className="font-semibold mr-2">Select Master:</label>
+        <select
+          className="border rounded px-3 py-2"
+          value={masterIndex}
+          onChange={e => setMaster(Number(e.target.value))}
+        >
+          {players.map((p, idx) => (
+            <option key={idx} value={idx}>{p.name}</option>
+          ))}
+        </select>
       </div>
       <button className="bg-blue-600 text-white px-4 py-2 rounded shadow">Create Game</button>
       <button className="bg-green-600 text-white px-4 py-2 rounded shadow mt-2">Join Game</button>

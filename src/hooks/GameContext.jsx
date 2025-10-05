@@ -14,9 +14,16 @@ export function GameProvider({ children }) {
     { name: 'Carol', score: 10 },
   ]);
   const [secretWord, setSecretWord] = useState('C _ _ _ _');
+  const [masterIndex, setMasterIndex] = useState(0); // index of current Master
+
+  // Helper to set Master by index
+  const setMaster = (idx) => {
+    setPlayers(players.map((p, i) => ({ ...p, isMaster: i === idx })));
+    setMasterIndex(idx);
+  };
 
   return (
-    <GameContext.Provider value={{ players, setPlayers, scores, setScores, secretWord, setSecretWord }}>
+    <GameContext.Provider value={{ players, setPlayers, scores, setScores, secretWord, setSecretWord, masterIndex, setMaster }}>
       {children}
     </GameContext.Provider>
   );
