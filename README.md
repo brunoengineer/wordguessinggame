@@ -1,16 +1,46 @@
-# React + Vite
+# Word Guessing Game
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a real-time multiplayer word guessing game built with React (Vite) for the frontend and Node.js/Express/Socket.IO for the backend.
 
-Currently, two official plugins are available:
+## Features
+- Create or join game rooms
+- Real-time gameplay and chat
+- Master rotation and scoring
+- Mobile-friendly UI
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Getting Started
 
-## React Compiler
+### Local Development
+1. **Install dependencies:**
+	```
+	npm install
+	```
+2. **Start the backend server:**
+	```
+	npm run server
+	```
+3. **Start the frontend:**
+	```
+	npm run dev
+	```
+4. Open your browser at `http://localhost:5173` (or the port shown in terminal).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Deploy Frontend to GitHub Pages
+1. Build the frontend:
+	```
+	npm run build
+	```
+2. Deploy the `dist` folder to GitHub Pages (e.g. using `gh-pages`):
+	```
+	npm install --save-dev gh-pages
+	npx gh-pages -d dist
+	```
+3. Enable GitHub Pages in your repo settings (set branch to `gh-pages`).
+4. Update the frontend Socket.IO URL to your backend’s public address.
 
-## Expanding the ESLint configuration
+### Deploy Backend
+- Use Render, Railway, Heroku, or similar to host your Node.js/Socket.IO server.
+- Make sure to use a public port and update the frontend to connect to the deployed backend.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## License
+MIT
