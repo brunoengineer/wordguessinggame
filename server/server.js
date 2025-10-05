@@ -53,6 +53,51 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Propose a word
+  socket.on('proposeWord', ({ roomId, playerName, word }) => {
+    if (rooms[roomId]) {
+      if (!rooms[roomId].state.proposals) rooms[roomId].state.proposals = [];
+      rooms[roomId].state.proposals.push({ playerName, word });
+      io.to(roomId).emit('roomUpdate', rooms[roomId]);
+      console.log(`Player ${playerName} proposed word '${word}' in room ${roomId}`);
+    }
+  });
+
+  // Connect response
+  socket.on('connectWord', ({ roomId, playerName, connectWord }) => {
+    if (rooms[roomId]) {
+      if (!rooms[roomId].state.connections) rooms[roomId].state.connections = [];
+      rooms[roomId].state.connections.push({ playerName, connectWord });
+      io.to(roomId).emit('roomUpdate', rooms[roomId]);
+      console.log(`Player ${playerName} connected with '${connectWord}' in room ${roomId}`);
+    }
+  });
+
+  // Update score
+  socket.on('updateScore', ({ roomId, playerName, score }) => {
+    if (rooms[roomId]) {
+      if (!rooms[roomId].state.scores) rooms[roomId].state.scores = [];
+      const idx = rooms[roomId].state.scores.findIndex(s => s.name === playerName);
+      if (idx >= 0) {
+        rooms[roomId].state.scores[idx].score = score;
+      } else {
+        rooms[roomId].state.scores.push({ name: playerName, score });
+      }
+      io.to(roomId).emit('roomUpdate', rooms[roomId]);
+      console.log(`Score updated for ${playerName} in room ${roomId}`);
+    }
+  });
+
+  // Reveal next letter
+  socket.on('revealLetter', ({ roomId, letter }) => {
+    if (rooms[roomId]) {
+      if (!rooms[roomId].state.revealedLetters) rooms[roomId].state.revealedLetters = [];
+      rooms[roomId].state.revealedLetters.push(letter);
+      io.to(roomId).emit('roomUpdate', rooms[roomId]);
+      console.log(`Letter '${letter}' revealed in room ${roomId}`);
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
     // Optionally: remove player from all rooms
