@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGame } from '../hooks/GameContext';
 
 export default function GameBoard() {
-  const { secretWord, setSecretWord, players, masterIndex, playerName, proposals, proposeWord, connections, connectWord, roundActive, revealedCount, revealNextLetter, awardPoints, scores } = useGame();
+  const { secretWord, setSecretWord, players, masterIndex, playerName, proposals, proposeWord, connections, connectWord, roundActive, revealedCount, revealNextLetter, awardPoints, scores, gameEnded, endRound, setMaster, masterHistory, startRound, setGameEnded } = useGame();
+  // Find winner(s)
+  const maxScore = scores.length > 0 ? Math.max(...scores.map(s => s.score || 0)) : 0;
+  const winners = scores.filter(s => (s.score || 0) === maxScore).map(s => s.name);
   const [input, setInput] = useState('');
   const [proposalInput, setProposalInput] = useState('');
   const [connectInput, setConnectInput] = useState('');
   const [selectedProposal, setSelectedProposal] = useState(null);
+  const [roundResult, setRoundResult] = useState(null); // { winner, word }
   const isMaster = players[masterIndex]?.name === playerName;
 
   // Only Master can set the secret word
@@ -17,23 +21,90 @@ export default function GameBoard() {
     }
   };
 
-  // Track revealed letters
-  // revealedCount is now global from context
-
   // Only Master sees the full secret word
   let displayWord = '';
   if (isMaster) {
     displayWord = secretWord;
   } else if (secretWord) {
-    // Only show revealed letters, hide word size
+    // Only show revealed letters, do not show underscores or word length
     displayWord = secretWord
       .split('')
       .map((ch, idx) => idx < revealedCount ? ch : '')
       .join('');
+    if (!displayWord) displayWord = '(Secret word hidden)';
   } else {
     displayWord = '(Secret word hidden)';
   }
 
+  // End round and rotate master
+  const endRoundAndRotateMaster = (winnerName = null) => {
+    setRoundResult({ winner: winnerName, word: secretWord });
+    endRound(); // Only ends the round, not the game
+  };
+
+  // Start next round and rotate master
+  const handleNextRound = () => {
+    // If all have been master, end game
+    if (masterHistory.length + 1 >= players.length) {
+      setGameEnded(true);
+      setRoundResult(null);
+      return;
+    }
+    // Rotate master
+    let nextMasterIdx = (masterIndex + 1) % players.length;
+    setMaster(nextMasterIdx);
+    setRoundResult(null);
+    startRound();
+  };
+
+  // Reset game
+  const handleResetGame = () => {
+    setGameEnded(false);
+    setMaster(0);
+    setRoundResult(null);
+    startRound();
+  };
+
+
+  if (gameEnded) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-green-50">
+        <h1 className="text-3xl font-bold mb-4">Game Over</h1>
+        <div className="mb-4 p-4 bg-white rounded shadow">
+          <span className="text-lg font-semibold">Final Scoreboard:</span>
+        </div>
+        <ul className="bg-white rounded shadow p-4">
+          {players.map((p, idx) => {
+            const scoreObj = scores.find(s => s.name === p.name);
+            const isWinner = winners.includes(p.name);
+            return (
+              <li key={idx} style={isWinner ? { fontWeight: 'bold', color: 'gold' } : {}}>
+                {p.name}: {scoreObj ? scoreObj.score : 0} pts {isWinner ? '🏆' : ''}
+              </li>
+            );
+          })}
+        </ul>
+        <div className="mt-6 text-xl font-bold text-green-700">Winner: {winners.join(', ')}</div>
+        <button className="mt-6 bg-blue-600 text-white px-4 py-2 rounded shadow" onClick={handleResetGame}>Reset Game</button>
+      </div>
+    );
+  }
+
+  // Show round result screen if round ended
+  if (roundResult) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-yellow-50">
+        <h1 className="text-2xl font-bold mb-4">Round Ended!</h1>
+        {roundResult.winner ? (
+          <div className="mb-4 text-lg">{roundResult.winner} guessed the word!</div>
+        ) : (
+          <div className="mb-4 text-lg">No one guessed the word.</div>
+        )}
+        <div className="mb-4 text-lg">The word was: <span className="font-bold text-blue-600">{roundResult.word}</span></div>
+        <button className="bg-green-600 text-white px-4 py-2 rounded shadow" onClick={handleNextRound}>Start Next Round</button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-green-50">
@@ -104,15 +175,14 @@ export default function GameBoard() {
           <button className="bg-blue-600 text-white px-4 py-2 rounded shadow" onClick={() => {
             if (proposalInput.trim().toLowerCase() === secretWord.toLowerCase()) {
               awardPoints(playerName, 20); // Win 20 points for correct guess
-              alert('Correct! You win 20 points!');
+              endRoundAndRotateMaster(playerName);
             } else {
               // Master wins 10 points for each incorrect guess
               if (players[masterIndex]) {
                 awardPoints(players[masterIndex].name, 10);
               }
-              alert('Incorrect guess. Master gets 10 points!');
+              setProposalInput('');
             }
-            setProposalInput('');
           }}>
             Guess Master Word (+20 points)
           </button>

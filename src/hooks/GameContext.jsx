@@ -4,6 +4,9 @@ import { io } from 'socket.io-client';
 const GameContext = createContext();
 
 export function GameProvider({ children }) {
+  // Track which players have been master
+  const [masterHistory, setMasterHistory] = useState([]);
+  const [gameEnded, setGameEnded] = useState(false);
   // Award points to a player and sync with backend
   const awardPoints = (targetName, points = 10) => {
     if (!roomId || !targetName) return;
@@ -50,6 +53,8 @@ export function GameProvider({ children }) {
       setProposals(room.state?.proposals || []);
       setConnections(room.state?.connections || []);
       setRevealedCount(room.state?.revealedCount ?? 1);
+      setMasterHistory(room.state?.masterHistory || []);
+      setGameEnded(room.state?.gameEnded || false);
     });
     return () => {
       socketRef.current.disconnect();
@@ -109,7 +114,10 @@ export function GameProvider({ children }) {
   const setMaster = (idx) => {
     setPlayers(players.map((p, i) => ({ ...p, isMaster: i === idx })));
     setMasterIndex(idx);
-    syncState({ masterIndex: idx });
+    // Add to master history
+    const updatedHistory = [...masterHistory, idx];
+    syncState({ masterIndex: idx, masterHistory: updatedHistory });
+    setMasterHistory(updatedHistory);
   };
 
   // Start a new round
@@ -123,6 +131,11 @@ export function GameProvider({ children }) {
   const endRound = () => {
     setRoundActive(false);
     syncState({ roundActive: false });
+    // Check if all players have been master
+    if (masterHistory.length >= players.length) {
+      setGameEnded(true);
+      syncState({ gameEnded: true });
+    }
   };
 
   return (
@@ -131,6 +144,7 @@ export function GameProvider({ children }) {
       masterIndex, setMaster, roundActive, startRound, endRound,
       revealedCount, revealNextLetter,
       awardPoints,
+      masterHistory, gameEnded, setGameEnded,
       socketStatus, socketRef, roomId, playerName, joinRoom, leaveRoom,
       proposals, proposeWord, connections, connectWord
     }}>
