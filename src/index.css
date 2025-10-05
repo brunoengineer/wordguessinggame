@@ -1,3 +1,29 @@
+/* Custom nav styles for consistent appearance */
+.custom-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  padding: 1rem 0;
+  margin-bottom: 2rem;
+  width: 100%;
+  max-width: 480px;
+}
+.custom-nav-link {
+  font-weight: bold;
+  font-size: 1.25rem;
+  padding: 0.75rem 2rem;
+  border-radius: 1rem;
+  background: linear-gradient(90deg,#6366f1 0%,#4f46e5 100%);
+  color: #fff;
+  text-decoration: none;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(79,70,229,0.12);
+}
+.custom-nav-link:hover {
+  background: linear-gradient(90deg,#4338ca 0%,#3730a3 100%);
+  box-shadow: 0 4px 16px rgba(79,70,229,0.18);
+}
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -35,6 +61,7 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  justify-content: space-evenly;
 }
 
 h1 {
