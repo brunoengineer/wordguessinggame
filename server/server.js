@@ -100,7 +100,18 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
-    // Optionally: remove player from all rooms
+    // Remove player from all rooms
+    Object.keys(rooms).forEach(roomId => {
+      const room = rooms[roomId];
+      // Find player by socket id (if you store socket id in player object)
+      const playerIdx = room.players.findIndex(p => p.socketId === socket.id);
+      if (playerIdx !== -1) {
+        const playerName = room.players[playerIdx].name;
+        room.players.splice(playerIdx, 1);
+        io.to(roomId).emit('roomUpdate', room);
+        console.log(`Player ${playerName} removed from room ${roomId} on disconnect.`);
+      }
+    });
   });
 });
 

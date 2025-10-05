@@ -4,6 +4,14 @@ import { io } from 'socket.io-client';
 const GameContext = createContext();
 
 export function GameProvider({ children }) {
+  // Award points to a player and sync with backend
+  const awardPoints = (targetName, points = 10) => {
+    if (!roomId || !targetName) return;
+    // Find current score
+    const currentScore = scores.find(s => s.name === targetName)?.score || 0;
+    const newScore = currentScore + points;
+    socketRef.current.emit('updateScore', { roomId, playerName: targetName, score: newScore });
+  };
   const [players, setPlayers] = useState([]);
   const [scores, setScores] = useState([]);
   const [secretWord, setSecretWord] = useState('');
@@ -11,6 +19,7 @@ export function GameProvider({ children }) {
   const [playerName, setPlayerName] = useState('');
   const [masterIndex, setMasterIndex] = useState(0); // index of current Master
   const [roundActive, setRoundActive] = useState(false);
+  const [revealedCount, setRevealedCount] = useState(1); // global revealed letter count
   const [socketStatus, setSocketStatus] = useState('disconnected');
   const socketRef = useRef(null);
 
@@ -40,6 +49,7 @@ export function GameProvider({ children }) {
       setRoundActive(room.state?.roundActive ?? false);
       setProposals(room.state?.proposals || []);
       setConnections(room.state?.connections || []);
+      setRevealedCount(room.state?.revealedCount ?? 1);
     });
     return () => {
       socketRef.current.disconnect();
@@ -87,6 +97,13 @@ export function GameProvider({ children }) {
     }
   };
 
+  // Reveal next letter for all
+  const revealNextLetter = () => {
+    const next = Math.min(revealedCount + 1, secretWord.length);
+    setRevealedCount(next);
+    syncState({ revealedCount: next });
+  };
+
   // Helper to set Master by index
   const setMaster = (idx) => {
     setPlayers(players.map((p, i) => ({ ...p, isMaster: i === idx })));
@@ -111,6 +128,8 @@ export function GameProvider({ children }) {
     <GameContext.Provider value={{
       players, setPlayers, scores, setScores, secretWord, setSecretWord: (word) => { setSecretWord(word); syncState({ secretWord: word }); },
       masterIndex, setMaster, roundActive, startRound, endRound,
+      revealedCount, revealNextLetter,
+      awardPoints,
       socketStatus, socketRef, roomId, playerName, joinRoom, leaveRoom,
       proposals, proposeWord, connections, connectWord
     }}>

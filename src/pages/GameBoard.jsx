@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../hooks/GameContext';
 
 export default function GameBoard() {
-  const { secretWord, setSecretWord, players, masterIndex, playerName, proposals, proposeWord, connections, connectWord, roundActive } = useGame();
+  const { secretWord, setSecretWord, players, masterIndex, playerName, proposals, proposeWord, connections, connectWord, roundActive, revealedCount, revealNextLetter, awardPoints } = useGame();
   const [input, setInput] = useState('');
   const [proposalInput, setProposalInput] = useState('');
   const [connectInput, setConnectInput] = useState('');
@@ -18,7 +18,7 @@ export default function GameBoard() {
   };
 
   // Track revealed letters
-  const [revealedCount, setRevealedCount] = useState(1); // Start with first letter revealed
+  // revealedCount is now global from context
 
   // Only Master sees the full secret word
   let displayWord = '';
@@ -34,13 +34,6 @@ export default function GameBoard() {
     displayWord = '(Secret word hidden)';
   }
 
-  // Award points to a player
-  const awardPoints = (targetName) => {
-    if (targetName) {
-      // TODO: Implement backend sync for points
-      console.log(`Awarded 10 points to ${targetName}`);
-    }
-  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-green-50">
@@ -80,16 +73,17 @@ export default function GameBoard() {
             onChange={e => setSelectedProposal(e.target.value)}
           >
             <option value="">Choose a player</option>
-            {players.filter(p => p.name !== playerName).map((p, idx) => (
-              <option key={idx} value={p.name}>{p.name}</option>
-            ))}
+            {players
+              .filter((p, idx) => p.name !== playerName && idx !== masterIndex)
+              .map((p, idx) => (
+                <option key={idx} value={p.name}>{p.name}</option>
+              ))}
           </select>
           <button className="bg-green-600 text-white px-4 py-2 rounded shadow" onClick={() => {
             if (selectedProposal) {
-              awardPoints(selectedProposal);
+              awardPoints(playerName);
               setSelectedProposal(null);
-              // Reveal next letter
-              setRevealedCount(c => Math.min(c + 1, secretWord.length));
+              revealNextLetter();
             }
           }}>
             Connect (+10 points)
@@ -132,10 +126,3 @@ export default function GameBoard() {
   );
 }
   // Award points to a player
-  // Award points to a player
-  const awardPoints = (targetName, points = 10) => {
-    if (targetName) {
-      // TODO: Implement backend sync for points
-      console.log(`Awarded ${points} points to ${targetName}`);
-    }
-  };
