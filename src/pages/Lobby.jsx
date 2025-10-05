@@ -4,7 +4,7 @@ import { useGame } from '../hooks/GameContext';
 import { useState } from 'react';
 
 export default function Lobby() {
-  const { players, setPlayers, masterIndex, setMaster, roundActive, startRound, endRound } = useGame();
+  const { players, setPlayers, masterIndex, setMaster, roundActive, startRound, endRound, socketStatus } = useGame();
   const [newPlayer, setNewPlayer] = useState('');
 
   const handleAddPlayer = () => {
@@ -17,6 +17,7 @@ export default function Lobby() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-blue-50">
       <h1 className="text-3xl font-bold mb-4">Lobby</h1>
+      <div className="mb-2 text-sm text-gray-600">Socket status: <span className={socketStatus === 'connected' ? 'text-green-600' : socketStatus === 'error' ? 'text-yellow-600' : 'text-red-600'}>{socketStatus}</span></div>
       <PlayerList players={players} />
       <div className="flex gap-2 mb-4">
         <input
