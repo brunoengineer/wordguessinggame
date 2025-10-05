@@ -1,9 +1,12 @@
+import { useGame } from '../hooks/GameContext';
+
 export default function GameBoard() {
+  const { secretWord } = useGame();
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-green-50">
       <h1 className="text-3xl font-bold mb-4">Game Board</h1>
       <div className="mb-4 p-4 bg-white rounded shadow">
-        <span className="text-lg font-semibold">Secret Word: <span className="text-blue-600">C _ _ _ _</span></span>
+        <span className="text-lg font-semibold">Secret Word: <span className="text-blue-600">{secretWord}</span></span>
       </div>
       <div className="flex flex-col gap-2 w-full max-w-md">
         <input className="border rounded px-3 py-2" placeholder="Propose a word..." />
