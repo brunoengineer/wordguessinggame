@@ -38,11 +38,28 @@ export function GameProvider({ children }) {
       setSecretWord(room.state?.secretWord || '');
       setMasterIndex(room.state?.masterIndex ?? 0);
       setRoundActive(room.state?.roundActive ?? false);
+      setProposals(room.state?.proposals || []);
+      setConnections(room.state?.connections || []);
     });
     return () => {
       socketRef.current.disconnect();
     };
   }, []);
+  // Proposals and connections
+  const [proposals, setProposals] = useState([]);
+  const [connections, setConnections] = useState([]);
+
+  const proposeWord = (word) => {
+    if (roomId && playerName && word.trim()) {
+      socketRef.current.emit('proposeWord', { roomId, playerName, word: word.trim() });
+    }
+  };
+
+  const connectWord = (connectWord) => {
+    if (roomId && playerName && connectWord.trim()) {
+      socketRef.current.emit('connectWord', { roomId, playerName, connectWord: connectWord.trim() });
+    }
+  };
 
   // Join a room
   const joinRoom = (roomId, playerName) => {
@@ -94,7 +111,8 @@ export function GameProvider({ children }) {
     <GameContext.Provider value={{
       players, setPlayers, scores, setScores, secretWord, setSecretWord: (word) => { setSecretWord(word); syncState({ secretWord: word }); },
       masterIndex, setMaster, roundActive, startRound, endRound,
-      socketStatus, socketRef, roomId, playerName, joinRoom, leaveRoom
+      socketStatus, socketRef, roomId, playerName, joinRoom, leaveRoom,
+      proposals, proposeWord, connections, connectWord
     }}>
       {children}
     </GameContext.Provider>
