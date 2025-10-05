@@ -12,6 +12,13 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+:root {
+  /* ...existing code... */
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 a {
   font-weight: 500;
