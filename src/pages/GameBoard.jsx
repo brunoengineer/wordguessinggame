@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../hooks/GameContext';
 
 export default function GameBoard() {
-  const { secretWord, setSecretWord, players, masterIndex, playerName, proposals, proposeWord, connections, connectWord, roundActive, revealedCount, revealNextLetter, awardPoints } = useGame();
+  const { secretWord, setSecretWord, players, masterIndex, playerName, proposals, proposeWord, connections, connectWord, roundActive, revealedCount, revealNextLetter, awardPoints, scores } = useGame();
   const [input, setInput] = useState('');
   const [proposalInput, setProposalInput] = useState('');
   const [connectInput, setConnectInput] = useState('');
@@ -28,7 +28,7 @@ export default function GameBoard() {
     // Only show revealed letters, hide word size
     displayWord = secretWord
       .split('')
-      .filter((ch, idx) => idx < revealedCount)
+      .map((ch, idx) => idx < revealedCount ? ch : '')
       .join('');
   } else {
     displayWord = '(Secret word hidden)';
@@ -81,12 +81,13 @@ export default function GameBoard() {
           </select>
           <button className="bg-green-600 text-white px-4 py-2 rounded shadow" onClick={() => {
             if (selectedProposal) {
-              awardPoints(playerName);
+              awardPoints(playerName, 10); // Give points to self
+              awardPoints(selectedProposal, 10); // Give points to connected participant
               setSelectedProposal(null);
               revealNextLetter();
             }
           }}>
-            Connect (+10 points)
+            Connect (+10 points to both)
           </button>
         </div>
       )}
@@ -117,8 +118,10 @@ export default function GameBoard() {
       <div className="mt-6">
         <h2 className="text-xl font-bold mb-2">Scoreboard</h2>
         <ul className="bg-white rounded shadow p-4">
-          {players.map((p, idx) => (
-            <li key={idx}>{p.name}: {p.score || 0} pts</li>
+          {scores.map((s, idx) => (
+            <li key={idx}>
+              {s.name}: {s.score || 0} pts
+            </li>
           ))}
         </ul>
       </div>

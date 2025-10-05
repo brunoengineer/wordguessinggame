@@ -21,6 +21,14 @@ app.get('/', (req, res) => {
 const rooms = {};
 
 io.on('connection', (socket) => {
+  // Master can remove a player manually
+  socket.on('kickPlayer', ({ roomId, playerName }) => {
+    if (rooms[roomId]) {
+      rooms[roomId].players = rooms[roomId].players.filter(p => p.name !== playerName);
+      io.to(roomId).emit('roomUpdate', rooms[roomId]);
+      console.log(`Player ${playerName} kicked from room ${roomId}`);
+    }
+  });
   console.log('A user connected:', socket.id);
 
   // Join a room

@@ -75,7 +75,8 @@ export function GameProvider({ children }) {
   const joinRoom = (roomId, playerName) => {
     setRoomId(roomId);
     setPlayerName(playerName);
-    socketRef.current.emit('joinRoom', { roomId, player: { name: playerName, isMaster: false } });
+    const socketId = socketRef.current.id;
+    socketRef.current.emit('joinRoom', { roomId, player: { name: playerName, isMaster: false, socketId } });
   };
 
   // Leave a room
