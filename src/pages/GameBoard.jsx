@@ -106,7 +106,11 @@ export default function GameBoard() {
               awardPoints(playerName, 20); // Win 20 points for correct guess
               alert('Correct! You win 20 points!');
             } else {
-              alert('Incorrect guess.');
+              // Master wins 10 points for each incorrect guess
+              if (players[masterIndex]) {
+                awardPoints(players[masterIndex].name, 10);
+              }
+              alert('Incorrect guess. Master gets 10 points!');
             }
             setProposalInput('');
           }}>
@@ -118,11 +122,14 @@ export default function GameBoard() {
       <div className="mt-6">
         <h2 className="text-xl font-bold mb-2">Scoreboard</h2>
         <ul className="bg-white rounded shadow p-4">
-          {scores.map((s, idx) => (
-            <li key={idx}>
-              {s.name}: {s.score || 0} pts
-            </li>
-          ))}
+          {players.map((p, idx) => {
+            const scoreObj = scores.find(s => s.name === p.name);
+            return (
+              <li key={idx}>
+                {p.name}: {scoreObj ? scoreObj.score : 0} pts
+              </li>
+            );
+          })}
         </ul>
       </div>
     </div>
