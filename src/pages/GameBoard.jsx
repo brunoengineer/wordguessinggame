@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from '../hooks/GameContext';
 
 export default function GameBoard() {
-  const { secretWord, setSecretWord, players, masterIndex, playerName, proposals, proposeWord, connections, connectWord, roundActive, revealedCount, revealNextLetter, awardPoints, scores, gameEnded, endRound, setMaster, masterHistory, startRound, setGameEnded } = useGame();
+  const { secretWord, setSecretWord, players, masterIndex, playerName, proposals, proposeWord, connections, connectWord, roundActive, revealedCount, revealNextLetter, awardPoints, scores, gameEnded, endRound, setMaster, masterHistory, startRound, setGameEnded, resetGame } = useGame();
   // Find winner(s)
   const maxScore = scores.length > 0 ? Math.max(...scores.map(s => s.score || 0)) : 0;
   const winners = scores.filter(s => (s.score || 0) === maxScore).map(s => s.name);
@@ -59,13 +59,12 @@ export default function GameBoard() {
 
   // Reset game
   const handleResetGame = () => {
-    setGameEnded(false);
-    setMaster(0);
     setRoundResult(null);
-    startRound();
+    resetGame();
   };
 
 
+  // Game Over screen should be shown for all players when gameEnded is true
   if (gameEnded) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-green-50">
@@ -91,7 +90,7 @@ export default function GameBoard() {
   }
 
   // Show round result screen if round ended
-  if (roundResult) {
+  if (roundResult && !gameEnded) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-yellow-50">
         <h1 className="text-2xl font-bold mb-4">Round Ended!</h1>
@@ -101,7 +100,20 @@ export default function GameBoard() {
           <div className="mb-4 text-lg">No one guessed the word.</div>
         )}
         <div className="mb-4 text-lg">The word was: <span className="font-bold text-blue-600">{roundResult.word}</span></div>
-        <button className="bg-green-600 text-white px-4 py-2 rounded shadow" onClick={handleNextRound}>Start Next Round</button>
+        <div className="mt-6">
+          <h2 className="text-xl font-bold mb-2">Scoreboard</h2>
+          <ul className="bg-white rounded shadow p-4">
+            {players.map((p, idx) => {
+              const scoreObj = scores.find(s => s.name === p.name);
+              return (
+                <li key={idx}>
+                  {p.name}: {scoreObj ? scoreObj.score : 0} pts
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+        <button className="bg-green-600 text-white px-4 py-2 rounded shadow mt-4" onClick={handleNextRound}>Start Next Round</button>
       </div>
     );
   }

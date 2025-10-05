@@ -124,18 +124,29 @@ export function GameProvider({ children }) {
   const startRound = () => {
     setRoundActive(true);
     setSecretWord('');
-    syncState({ roundActive: true, secretWord: '' });
+    setRevealedCount(1); // Reset revealed letters to 1 at start of round
+    syncState({ roundActive: true, secretWord: '', revealedCount: 1 });
   };
 
   // End the current round
   const endRound = () => {
     setRoundActive(false);
     syncState({ roundActive: false });
-    // Check if all players have been master
-    if (masterHistory.length >= players.length) {
-      setGameEnded(true);
-      syncState({ gameEnded: true });
-    }
+    // Game end is now handled in GameBoard for correct timing
+  };
+
+  // Reset game: scores, master, round, revealedCount, masterHistory, gameEnded
+  const resetGame = () => {
+    const resetScores = players.map(p => ({ name: p.name, score: 0 }));
+    setScores(resetScores);
+    setMasterIndex(0);
+    setMaster(0);
+    setSecretWord('');
+    setRevealedCount(1);
+    setMasterHistory([]);
+    setGameEnded(false);
+    syncState({ scores: resetScores, masterIndex: 0, secretWord: '', revealedCount: 1, masterHistory: [], gameEnded: false });
+    startRound();
   };
 
   return (
@@ -144,7 +155,7 @@ export function GameProvider({ children }) {
       masterIndex, setMaster, roundActive, startRound, endRound,
       revealedCount, revealNextLetter,
       awardPoints,
-      masterHistory, gameEnded, setGameEnded,
+      masterHistory, gameEnded, setGameEnded, resetGame,
       socketStatus, socketRef, roomId, playerName, joinRoom, leaveRoom,
       proposals, proposeWord, connections, connectWord
     }}>

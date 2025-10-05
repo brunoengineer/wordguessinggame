@@ -58,20 +58,15 @@ export default function Lobby() {
               ))}
             </select>
           </div>
-          <button
-            className="bg-purple-600 text-white px-4 py-2 rounded shadow mb-2"
-            onClick={startRound}
-            disabled={roundActive}
-          >
-            Start Round
-          </button>
-          <button
-            className="bg-red-600 text-white px-4 py-2 rounded shadow mb-2"
-            onClick={endRound}
-            disabled={!roundActive}
-          >
-            End Round
-          </button>
+          {/* Only show Start Game button if round hasn't started yet */}
+          {!roundActive && (
+            <button
+              className="bg-green-600 text-white px-4 py-2 rounded shadow mb-2"
+              onClick={startRound}
+            >
+              Start Game
+            </button>
+          )}
           <button className="bg-gray-400 text-white px-4 py-2 rounded shadow mt-2" onClick={handleLeaveRoom}>
             Leave Room
           </button>
