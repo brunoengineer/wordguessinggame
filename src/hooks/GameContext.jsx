@@ -15,6 +15,7 @@ export function GameProvider({ children }) {
   ]);
   const [secretWord, setSecretWord] = useState('C _ _ _ _');
   const [masterIndex, setMasterIndex] = useState(0); // index of current Master
+  const [roundActive, setRoundActive] = useState(false);
 
   // Helper to set Master by index
   const setMaster = (idx) => {
@@ -22,8 +23,19 @@ export function GameProvider({ children }) {
     setMasterIndex(idx);
   };
 
+  // Start a new round
+  const startRound = () => {
+    setRoundActive(true);
+    setSecretWord(''); // Reset secret word for new round
+  };
+
+  // End the current round
+  const endRound = () => {
+    setRoundActive(false);
+  };
+
   return (
-    <GameContext.Provider value={{ players, setPlayers, scores, setScores, secretWord, setSecretWord, masterIndex, setMaster }}>
+    <GameContext.Provider value={{ players, setPlayers, scores, setScores, secretWord, setSecretWord, masterIndex, setMaster, roundActive, startRound, endRound }}>
       {children}
     </GameContext.Provider>
   );

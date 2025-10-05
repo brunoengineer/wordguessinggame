@@ -4,7 +4,7 @@ import { useGame } from '../hooks/GameContext';
 import { useState } from 'react';
 
 export default function Lobby() {
-  const { players, setPlayers, masterIndex, setMaster } = useGame();
+  const { players, setPlayers, masterIndex, setMaster, roundActive, startRound, endRound } = useGame();
   const [newPlayer, setNewPlayer] = useState('');
 
   const handleAddPlayer = () => {
@@ -41,8 +41,20 @@ export default function Lobby() {
           ))}
         </select>
       </div>
-      <button className="bg-blue-600 text-white px-4 py-2 rounded shadow">Create Game</button>
-      <button className="bg-green-600 text-white px-4 py-2 rounded shadow mt-2">Join Game</button>
+      <button
+        className="bg-purple-600 text-white px-4 py-2 rounded shadow mb-2"
+        onClick={startRound}
+        disabled={roundActive}
+      >
+        Start Round
+      </button>
+      <button
+        className="bg-red-600 text-white px-4 py-2 rounded shadow mb-2"
+        onClick={endRound}
+        disabled={!roundActive}
+      >
+        End Round
+      </button>
     </div>
   );
 }
