@@ -27,7 +27,7 @@ export function GameProvider({ children }) {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    socketRef.current = io('http://localhost:4000', {
+    socketRef.current = io('https://wordguessinggame-4pju.onrender.com', {
       transports: ['websocket'],
       reconnectionAttempts: 5,
       timeout: 2000,
