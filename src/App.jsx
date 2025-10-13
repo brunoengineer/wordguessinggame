@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Lobby from './pages/Lobby';
 import GameBoard from './pages/GameBoard';
 // ...existing code...
